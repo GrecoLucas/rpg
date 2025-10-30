@@ -129,10 +129,56 @@ export function calculateAbilitySuccess(charId, abilityKey) {
   
   // Rolagem: d20 + modificador de atributo vs dificuldade
   const roll = 1 + Math.floor(Math.random() * 20);
-  const modifier = Math.floor(attrValue / 5); // cada 5 pontos = +1 de bônus
+  const baseModifier = Math.floor(attrValue / 5); // cada 5 pontos = +1 de bônus
+
+  // Bônus de acerto extra (ex.: habilidade pode usar outro atributo para melhorar acerto)
+  let extraHit = 0;
+  if (ability.hitUses && ability.hitUses.attribute) {
+    const a = finalAttrs[ability.hitUses.attribute] || 0;
+    const per = ability.hitUses.per || 5;
+    const mult = ability.hitUses.mult || 1;
+    extraHit = Math.floor(a / per) * mult;
+  }
+
+  const modifier = baseModifier + extraHit;
   const total = roll + modifier;
   const success = total >= ability.dificuldade;
-  
+
+  // Calcula dano final se aplicável, considerando escalonamento por atributos e críticos
+  let finalDamage = null;
+  let crit = false;
+  if (ability.dano) {
+    const baseDmg = Number(ability.dano) || 0;
+    let scale = 0;
+    if (ability.damageScale && ability.damageScale.attribute) {
+      const a = finalAttrs[ability.damageScale.attribute] || 0;
+      const per = ability.damageScale.per || 5;
+      const mult = ability.damageScale.mult || 1;
+      scale = Math.floor(a / per) * mult;
+    }
+    finalDamage = baseDmg + scale;
+
+    // Chance de crítico (se definida na habilidade) — valor entre 0 e 1
+    if (ability.critChance && Math.random() < ability.critChance) {
+      crit = true;
+      finalDamage = Math.round(finalDamage * (ability.critMult || 2));
+    }
+  }
+
+  // Calcula cura final se aplicável
+  let finalHeal = null;
+  if (ability.cura) {
+    const baseHeal = Number(ability.cura) || 0;
+    let scale = 0;
+    if (ability.healScale && ability.healScale.attribute) {
+      const a = finalAttrs[ability.healScale.attribute] || 0;
+      const per = ability.healScale.per || 5;
+      const mult = ability.healScale.mult || 1;
+      scale = Math.floor(a / per) * mult;
+    }
+    finalHeal = baseHeal + scale;
+  }
+
   return {
     success,
     roll,
@@ -140,6 +186,9 @@ export function calculateAbilitySuccess(charId, abilityKey) {
     total,
     difficulty: ability.dificuldade,
     ability,
-    char
+    char,
+    finalDamage,
+    finalHeal,
+    crit
   };
 }

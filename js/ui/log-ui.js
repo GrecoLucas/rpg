@@ -14,7 +14,9 @@ export function renderLog() {
   if (!ul) return;
   
   ul.innerHTML = '';
-  for (const e of list) {
+  // Show only the last 5 entries, newest first
+  const recent = list.length > 5 ? list.slice(-5).reverse() : list.slice().reverse();
+  for (const e of recent) {
     const li = document.createElement('li');
     
     if (e.type === 'dice') {

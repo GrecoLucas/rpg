@@ -25,6 +25,34 @@ export const CLASSES = [
         cura: 10,
         tipo: 'defesa'
       }
+      ,
+      {
+        key: 'golpe_preciso',
+        nome: 'Golpe Preciso',
+        descricao: 'Ataque focado que prioriza acerto — funciona melhor com agilidade.',
+        atributo: 'Agilidade',
+        dificuldade: 9,
+        dano: 10,
+        tipo: 'ataque',
+        // Bônus de acerto derivado da Agilidade (cada 5 pontos = +1 adicional ao total)
+        hitUses: { attribute: 'Agilidade', per: 5, mult: 1 },
+        // Pequeno aumento de dano baseado na Força
+        damageScale: { attribute: 'Força', per: 5, mult: 2 }
+      },
+      {
+        key: 'golpe_furioso',
+        nome: 'Golpe Furioso',
+        descricao: 'Ataque pesado que usa força para aumentar o dano, porém é mais difícil de executar.',
+        atributo: 'Força',
+        dificuldade: 14,
+        dano: 22,
+        tipo: 'ataque',
+        // Dano escala fortemente com Força
+        damageScale: { attribute: 'Força', per: 4, mult: 4 },
+        // Chance de crítico baseada na Sorte (valor entre 0 e 1)
+        critChance: 0.05,
+        critMult: 2
+      }
     ]
   },
   {
@@ -51,6 +79,31 @@ export const CLASSES = [
         cura: 15,
         curaTodos: true,
         tipo: 'suporte'
+      }
+      ,
+      {
+        key: 'rajada_arcana',
+        nome: 'Rajada Arcana',
+        descricao: 'Surtos de energia mágica que se beneficiam da Inteligência e Magia.',
+        atributo: 'Magia',
+        dificuldade: 11,
+        dano: 18,
+        tipo: 'ataque',
+        // Dano escala com Magia
+        damageScale: { attribute: 'Magia', per: 4, mult: 3 },
+        // Inteligência dá bônus de acerto
+        hitUses: { attribute: 'Inteligência', per: 5, mult: 1 }
+      },
+      {
+        key: 'escudo_arcano',
+        nome: 'Escudo Arcano',
+        descricao: 'Cria uma barreira mágica que regenera HP ou absorve dano; melhor com Inteligência.',
+        atributo: 'Inteligência',
+        dificuldade: 10,
+        cura: 12,
+        tipo: 'defesa',
+        // Cura aumenta com Inteligência
+        healScale: { attribute: 'Inteligência', per: 5, mult: 3 }
       }
     ]
   },

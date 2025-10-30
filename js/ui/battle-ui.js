@@ -46,13 +46,14 @@ export function renderMesaCharacters() {
           <button class="small-btn apply-damage-btn" data-char-id="${char.id}">Aplicar Dano</button>
           <button class="small-btn reset-hp-btn" data-char-id="${char.id}">Resetar HP</button>
         </div>
+        <div class="abilities-inline" id="abilities-inline-${char.id}" style="display:none; margin-top:0.5rem;"></div>
       </div>
     `;
   }).join('');
   
   // Event listeners para os botões
   $all('.view-abilities-btn').forEach(btn => {
-    btn.addEventListener('click', () => showAbilities(btn.dataset.charId));
+    btn.addEventListener('click', () => showAbilitiesInline(btn.dataset.charId));
   });
 
   // Botão para aplicar dano manualmente
@@ -86,6 +87,82 @@ export function renderMesaCharacters() {
       renderMesaCharacters();
       logManager.add({ type: 'heal', text: `HP de ${char?.name} foi restaurado.` });
       document.dispatchEvent(new CustomEvent('logAdded'));
+    });
+  });
+}
+
+/**
+ * Mostra as habilidades inline abaixo do card do personagem (toggle)
+ */
+function showAbilitiesInline(charId) {
+  const char = characters.getById(charId);
+  if (!char) return;
+
+  const container = document.getElementById(`abilities-inline-${charId}`);
+  if (!container) return;
+
+  // Toggle
+  if (container.style.display === 'block') {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+
+  const abilities = getClassAbilities(char.classKey);
+  const finalAttrs = applyClassMods(char.attrs, char.classKey);
+
+  // Targets
+  const enemyTargets = enemies.getAll().filter(e => e.currentHP > 0);
+  const playerTargets = characters.getAll().filter(c => c.currentHP > 0);
+
+  container.innerHTML = abilities.map(ability => {
+    const attrValue = finalAttrs[ability.atributo] || 0;
+    const modifier = Math.floor(attrValue / 5);
+
+    let targetOptions = '';
+    if (ability.tipo === 'ataque') {
+      targetOptions = `<select class="target-select-inline" data-ability-key="${ability.key}">` +
+        enemyTargets.map(e => `<option value="enemy-${e.id}">${e.name} (HP: ${e.currentHP})</option>`).join('') +
+        `</select>`;
+    } else if (ability.tipo === 'defesa' || ability.tipo === 'suporte') {
+      if (ability.curaTodos) {
+        targetOptions = '<select class="target-select-inline"><option value="all-players">Todos os Aliados</option></select>';
+      } else {
+        targetOptions = `<select class="target-select-inline" data-ability-key="${ability.key}">` +
+          playerTargets.map(c => `<option value="player-${c.id}">${c.name} (HP: ${c.currentHP})</option>`).join('') +
+          `</select>`;
+      }
+    }
+
+    return `
+      <div class="ability-card">
+        <h4>${ability.nome}</h4>
+        <p class="small">${ability.descricao}</p>
+        <div class="ability-stats small">
+          <span>Atributo: ${ability.atributo} (${attrValue}, +${modifier})</span>
+          <span>Dificuldade: ${ability.dificuldade}</span>
+        </div>
+        ${targetOptions ? `<div class="target-selection"><label class="small">Alvo:</label>${targetOptions}</div>` : ''}
+        <button class="use-ability-btn-inline small-btn" data-char-id="${charId}" data-ability-key="${ability.key}">Usar</button>
+      </div>
+    `;
+  }).join('');
+
+  // show container
+  container.style.display = 'block';
+
+  // attach listeners for inline use
+  container.querySelectorAll('.use-ability-btn-inline').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const abilityKey = btn.dataset.abilityKey;
+      // find the select inside this ability-card
+      const abilityCard = btn.closest('.ability-card');
+      const select = abilityCard.querySelector('.target-select-inline');
+      const targetValue = select?.value || null;
+      useAbility(btn.dataset.charId, abilityKey, targetValue);
+      // after use, refresh UI and keep panel open or close
+      container.style.display = 'none';
+      container.innerHTML = '';
     });
   });
 }
@@ -274,24 +351,28 @@ function useAbility(charId, abilityKey, targetValue) {
     if (ability.tipo === 'ataque' && ability.dano) {
       if (targetValue && targetValue.startsWith('enemy-')) {
         const enemyId = targetValue.replace('enemy-', '');
-        enemies.damage(enemyId, ability.dano);
+        const damageToApply = result.finalDamage ?? ability.dano;
+        enemies.damage(enemyId, damageToApply);
         const enemy = enemies.getById(enemyId);
-        logText += ` Causou ${ability.dano} de dano em ${enemy?.name}.`;
+        logText += ` Causou ${damageToApply} de dano em ${enemy?.name}.`;
+        if (result.crit) logText += ' (CRÍTICO)';
       }
     } else if (ability.tipo === 'defesa' && ability.cura) {
+      const healToApply = result.finalHeal ?? ability.cura;
       if (targetValue && targetValue.startsWith('player-')) {
         const playerId = targetValue.replace('player-', '');
-        characters.heal(playerId, ability.cura);
+        characters.heal(playerId, healToApply);
         const player = characters.getById(playerId);
-        logText += ` ${player?.name} recuperou ${ability.cura} HP.`;
+        logText += ` ${player?.name} recuperou ${healToApply} HP.`;
       } else {
-        characters.heal(charId, ability.cura);
-        logText += ` Recuperou ${ability.cura} HP.`;
+        characters.heal(charId, healToApply);
+        logText += ` Recuperou ${healToApply} HP.`;
       }
     } else if (ability.tipo === 'suporte' && ability.curaTodos) {
+      const healToApply = result.finalHeal ?? ability.cura;
       const allChars = characters.getAll();
-      allChars.forEach(c => characters.heal(c.id, ability.cura));
-      logText += ` Todos recuperaram ${ability.cura} HP.`;
+      allChars.forEach(c => characters.heal(c.id, healToApply));
+      logText += ` Todos recuperaram ${healToApply} HP.`;
     }
   } else {
     logText += ' - FALHOU!';
