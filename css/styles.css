@@ -278,47 +278,22 @@ main { padding: 1rem; max-width: 1200px; margin: 0 auto; }
   background: #b91c1c;
 }
 
-/* Dice 3D Canvas */
-.dice-canvas {
-  width: 100%;
-  height: 200px;
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
-}
-
-.dice-canvas canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
-
+/* Dice Display */
 .dice-result-display {
   text-align: center;
-  padding: 0.75rem;
-  background: #f9fafb;
-  border-radius: 6px;
-  margin-top: 0.75rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #1f2937;
-  min-height: 3rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-radius: 8px;
+  margin: 0.75rem 0;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #fff;
+  min-height: 5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.dice-result-display.rolling {
-  color: #2563eb;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border: 2px solid #374151;
 }
 
 .dice-controls { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 0.5rem; align-items: center; }

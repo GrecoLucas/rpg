@@ -50,7 +50,11 @@ function initModeSwitch() {
 function renderScenario() {
   const img = $('#scenarioImage');
   const saved = storage.get(SCENARIO_KEY, null);
-  if (saved) img.src = saved; else img.src = 'assets/placeholder.png';
+  if (saved) {
+    img.src = saved;
+  } else {
+    img.src = 'assets/placeholder.svg'; // Usa placeholder SVG
+  }
 }
 
 async function initAssetsSlideshow() {
@@ -390,7 +394,8 @@ function renderLog() {
   for (const e of list) {
     const li = document.createElement('li');
     if (e.type === 'dice') {
-      li.textContent = `[${new Date(e.ts).toLocaleTimeString()}] ${e.by === 'gm' ? 'GM' : 'Jogador'} rolou ${e.times}d${e.sides}: ${e.rolls.join(', ')} = ${e.total}`;
+      const rolls = e.rolls && Array.isArray(e.rolls) ? e.rolls.join(', ') : e.total;
+      li.textContent = `[${new Date(e.ts).toLocaleTimeString()}] ${e.by === 'gm' ? 'GM' : 'Jogador'} rolou ${e.times}d${e.sides}: ${rolls} = ${e.total}`;
     } else if (e.type === 'scenario') {
       li.textContent = `[${new Date(e.ts).toLocaleTimeString()}] ${e.text}`;
     } else {
@@ -405,12 +410,21 @@ function initDice() {
   const diceTimes = $('#diceTimes');
   const rollBtn = $('#rollBtn');
   const clearBtn = $('#clearLogBtn');
+  const resultDisplay = $('#diceResult');
 
   rollBtn.addEventListener('click', () => {
     const sides = Number(diceType.value);
     const times = Math.max(1, Math.min(20, Number(diceTimes.value)));
     const res = rollDice(sides, times);
     const mode = storage.get(MODE_KEY, 'gm');
+    
+    // Mostra o resultado na tela
+    if (times === 1) {
+      resultDisplay.textContent = `Resultado: ${res.total}`;
+    } else {
+      resultDisplay.textContent = `Resultados: ${res.rolls.join(', ')} = ${res.total}`;
+    }
+    
     addLog({ type: 'dice', by: mode, ...res });
   });
 
@@ -897,90 +911,95 @@ async function loadStory() {
     // Renderiza a história
     let html = `
       <div class="story-container">
-        <h3>${story.title}</h3>
-        <p class="muted"><strong>Versão:</strong> ${story.version}</p>
-        <p>${story.summary}</p>
+        <h3>${story.title || 'História da Campanha'}</h3>
+        <p class="muted"><strong>Versão:</strong> ${story.version || '1.0'}</p>
+        <p>${story.summary || ''}</p>
         
+        ${story.players_template && story.players_template.length > 0 ? `
         <details open>
           <summary><strong>Personagens (Template)</strong></summary>
           <ul>
             ${story.players_template.map(p => `
               <li>
-                <strong>${p.name}</strong> - HP: ${p.hp}/${p.max_hp}<br>
-                Stats: Força ${p.stats.forca}, Agilidade ${p.stats.agilidade}, Inteligência ${p.stats.inteligencia}, Sorte ${p.stats.sorte}
+                <strong>${p.name || 'Jogador'}</strong> - HP: ${p.hp || 10}/${p.max_hp || 10}<br>
+                ${p.stats ? `Stats: Força ${p.stats.forca || 0}, Agilidade ${p.stats.agilidade || 0}, Inteligência ${p.stats.inteligencia || 0}, Sorte ${p.stats.sorte || 0}` : ''}
               </li>
             `).join('')}
           </ul>
         </details>
+        ` : ''}
         
-        ${story.parts.map(part => `
+        ${story.parts && story.parts.length > 0 ? story.parts.map(part => `
           <details>
-            <summary><strong>Parte ${part.id}: ${part.title}</strong></summary>
-            <p>${part.description}</p>
+            <summary><strong>Parte ${part.id || '?'}: ${part.title || 'Sem título'}</strong></summary>
+            <p>${part.description || ''}</p>
             
-            ${part.choices ? `
+            ${part.choices && part.choices.length > 0 ? `
               <h4>Escolhas de Caminho:</h4>
               ${part.choices.map(choice => `
                 <div class="story-choice">
-                  <strong>${choice.name}</strong> - ${choice.description}<br>
-                  <em>Teste: ${choice.test.stat} ${choice.test.target_text}</em><br>
-                  ✅ Sucesso: ${choice.success_narrative}<br>
-                  ❌ Falha: ${choice.failure_narrative}
+                  <strong>${choice.name || 'Opção'}</strong> - ${choice.description || ''}<br>
+                  ${choice.test ? `<em>Teste: ${choice.test.stat || ''} ${choice.test.target_text || ''}</em><br>` : ''}
+                  ${choice.success_narrative ? `✅ Sucesso: ${choice.success_narrative}<br>` : ''}
+                  ${choice.failure_narrative ? `❌ Falha: ${choice.failure_narrative}` : ''}
                 </div>
               `).join('')}
-              <p class="muted"><em>GM: ${part.gm_notes}</em></p>
+              ${part.gm_notes ? `<p class="muted"><em>GM: ${part.gm_notes}</em></p>` : ''}
             ` : ''}
             
-            ${part.test?.options ? `
+            ${part.test && part.test.options && part.test.options.length > 0 ? `
               <h4>Desafio:</h4>
               <p>Opções de teste:</p>
               <ul>
                 ${part.test.options.map(opt => `
-                  <li>${opt.stat} ${opt.text}</li>
+                  <li>${opt.stat || ''} ${opt.text || ''}</li>
                 `).join('')}
               </ul>
-              <p>✅ Sucesso: ${part.success.narrative}</p>
-              <p>❌ Falha: ${part.failure.narrative}</p>
-              <p class="muted"><em>GM: ${part.gm_notes}</em></p>
+              ${part.success && part.success.narrative ? `<p>✅ Sucesso: ${part.success.narrative}</p>` : ''}
+              ${part.failure && part.failure.narrative ? `<p>❌ Falha: ${part.failure.narrative}</p>` : ''}
+              ${part.gm_notes ? `<p class="muted"><em>GM: ${part.gm_notes}</em></p>` : ''}
             ` : ''}
             
-            ${part.combat_setup ? `
+            ${part.combat_setup && part.combat_setup.enemies && part.combat_setup.enemies.length > 0 ? `
               <h4>Combate:</h4>
               <p><strong>Inimigos:</strong></p>
               <ul>
                 ${part.combat_setup.enemies.map(enemy => `
-                  <li>${enemy.count}x ${enemy.type} - HP: ${enemy.hp}, Ataque: ${enemy.attack.dice} +${enemy.attack.atk_mod} (acerto ${enemy.attack.hit_target}+), Dano: ${enemy.attack.damage}</li>
+                  <li>${enemy.count || 1}x ${enemy.type || 'Inimigo'} - HP: ${enemy.hp || 0}${enemy.attack ? `, Ataque: ${enemy.attack.dice || 'd20'} +${enemy.attack.atk_mod || 0} (acerto ${enemy.attack.hit_target || 10}+), Dano: ${enemy.attack.damage || '1d6'}` : ''}</li>
                 `).join('')}
               </ul>
+              ${part.actions ? `
               <p><strong>Ações disponíveis:</strong></p>
               <ul>
                 ${Object.entries(part.actions).map(([key, action]) => `
-                  <li><strong>${key}:</strong> ${action.description} ${action.example || ''}</li>
+                  <li><strong>${key}:</strong> ${action.description || ''} ${action.example || ''}</li>
                 `).join('')}
               </ul>
-              <p class="muted"><em>Ordem: ${part.turns}</em></p>
-              <p class="muted"><em>GM: ${part.gm_tips}</em></p>
+              ` : ''}
+              ${part.turns ? `<p class="muted"><em>Ordem: ${part.turns}</em></p>` : ''}
+              ${part.gm_tips ? `<p class="muted"><em>GM: ${part.gm_tips}</em></p>` : ''}
             ` : ''}
           </details>
-        `).join('')}
+        `).join('') : ''}
         
+        ${story.mechanics ? `
         <details>
           <summary><strong>Mecânicas do Jogo</strong></summary>
           <ul>
-            <li><strong>Dados:</strong> ${story.mechanics.dice_notation}</li>
-            <li><strong>Sucesso:</strong> ${story.mechanics.success_definition}</li>
-            <li><strong>Dano:</strong> ${story.mechanics.damage_ranges}</li>
-            <li><strong>Modificadores:</strong> ${story.mechanics.modifiers}</li>
+            ${story.mechanics.dice_notation ? `<li><strong>Dados:</strong> ${story.mechanics.dice_notation}</li>` : ''}
+            ${story.mechanics.success_definition ? `<li><strong>Sucesso:</strong> ${story.mechanics.success_definition}</li>` : ''}
+            ${story.mechanics.damage_ranges ? `<li><strong>Dano:</strong> ${story.mechanics.damage_ranges}</li>` : ''}
+            ${story.mechanics.modifiers ? `<li><strong>Modificadores:</strong> ${story.mechanics.modifiers}</li>` : ''}
           </ul>
         </details>
-        
-        <p class="muted" style="margin-top: 1rem;"><em>${story.gm_notes}</em></p>
+        ` : ''}
       </div>
     `;
     
     storyDisplay.innerHTML = html;
   } catch (error) {
-    storyDisplay.innerHTML = `<p class="muted">❌ Erro ao carregar história: ${error.message}</p>`;
+    console.error('Erro ao carregar história:', error);
+    storyDisplay.innerHTML = `<p class="muted">Não foi possível carregar a história. Verifique o arquivo data/story.json</p>`;
   }
 }
 

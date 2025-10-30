@@ -5,13 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RPG de Mesa Offline</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js"
-      }
-    }
-  </script>
 </head>
 <body>
   <header class="app-header">
@@ -73,7 +66,6 @@
             </div>
             <div class="dice">
               <h2>Rolagem de Dados</h2>
-              <div id="diceCanvas" class="dice-canvas"></div>
               <div class="dice-controls">
                 <label for="diceType">Dado:</label>
                 <select id="diceType">
@@ -89,7 +81,7 @@
                 <input id="diceTimes" type="number" min="1" max="20" value="1" />
                 <button id="rollBtn">Rolar</button>
               </div>
-              <div id="diceResult" class="dice-result-display"></div>
+              <div id="diceResult" class="dice-result-display">Clique em "Rolar" para jogar os dados</div>
             </div>
             <div class="log">
               <div class="log-header">
