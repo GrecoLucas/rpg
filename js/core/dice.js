@@ -1,4 +1,6 @@
-// Utilitário de rolagem de dados
+/**
+ * Utilitário de rolagem de dados
+ */
 export function rollDice(sides, times = 1) {
   const rolls = [];
   for (let i = 0; i < times; i++) {

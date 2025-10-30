@@ -6,22 +6,15 @@
   <title>RPG de Mesa Offline</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<body data-mode="gm">
   <header class="app-header">
     <h1>RPG de Mesa Offline</h1>
-    <div class="mode-switch">
-      <label for="modeSelect">Modo:</label>
-      <select id="modeSelect" aria-label="Selecionar modo">
-        <option value="gm">GM (Mestre)</option>
-        <option value="player">Jogador</option>
-      </select>
-    </div>
   </header>
 
   <nav class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="mesa" role="tab" aria-selected="true">Mesa</button>
     <button class="tab-btn" data-tab="personagens" role="tab" aria-selected="false">Personagens</button>
-    <button class="tab-btn gm-only" data-tab="mestre" role="tab" aria-selected="false">Mestre</button>
+    <button class="tab-btn" data-tab="mestre" role="tab" aria-selected="false">Mestre</button>
   </nav>
 
   <main>
@@ -47,14 +40,14 @@
         <div class="scenario-panel">
           <div class="scenario">
             <img id="scenarioImage" src="assets/placeholder.png" alt="Cenário atual" />
-            <div class="gm-only cover-selector">
+            <div class="cover-selector">
               <label for="coverSelect">Escolher capa:</label>
               <select id="coverSelect"></select>
               <button id="setCoverBtn" class="primary">Definir como Capa</button>
             </div>
           </div>
           <aside class="sidebar">
-            <div class="gm-only enemy-combat-panel">
+            <div class="enemy-combat-panel">
               <h2>Inimigos (GM)</h2>
               <div id="enemiesInBattle" class="enemies-grid"></div>
               <div id="enemyAttackPanel" class="enemy-attack-panel" style="display:none;">

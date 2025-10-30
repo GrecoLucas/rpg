@@ -1,5 +1,5 @@
 import { storage } from './storage.js';
-import { CLASSES } from '../data/classes.js';
+import { CLASSES } from '../../data/classes.js';
 
 const CHAR_KEY = 'characters';
 const SELECTED_KEY = 'selectedCharacterId';
