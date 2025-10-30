@@ -1,0 +1,8 @@
+{
+  "images": [
+    { "name": "1.png", "path": "assets/1.png" },
+    { "name": "castelo.jpeg", "path": "assets/castelo.jpeg" },
+    { "name": "floresta.jpg", "path": "assets/floresta.jpg" },
+    { "name": "orc.jpeg", "path": "assets/orc.jpeg" }
+  ]
+}

@@ -1,0 +1,489 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: #1f2937;
+  background: #f6f7fb;
+}
+
+.app-header, .app-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; background: #111827; color: #fff;
+}
+.app-footer { justify-content: center; background: #1f2937; }
+.muted { color: #6b7280; }
+
+.mode-switch { display: inline-flex; gap: 0.5rem; align-items: center; }
+
+.tabs { display: flex; gap: 0.5rem; padding: 0.5rem 1rem; background: #e5e7eb; border-bottom: 1px solid #d1d5db; }
+.tab-btn { border: 1px solid #9ca3af; background: #fff; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
+.tab-btn.active { background: #111827; color: #fff; border-color: #111827; }
+
+main { padding: 1rem; max-width: 1200px; margin: 0 auto; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.mesa { display: grid; grid-template-columns: 360px 1fr; gap: 1rem; }
+.character-panel { display: flex; flex-direction: column; gap: 1rem; }
+.scenario-panel { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; }
+.scenario { background: #111827; border-radius: 8px; display: grid; place-items: center; min-height: 360px; overflow: hidden; }
+.scenario img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.cover-selector { 
+  display: flex; 
+  gap: 0.5rem; 
+  align-items: center; 
+  padding: 0.75rem; 
+  background: rgba(17, 24, 39, 0.9); 
+  width: 100%;
+  flex-wrap: wrap;
+}
+.cover-selector label { color: #fff; font-size: 0.85rem; }
+.sidebar { display: flex; flex-direction: column; gap: 1rem; }
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+
+/* Character Cards na Mesa */
+.characters-grid { display: grid; gap: 0.75rem; }
+.character-card { 
+  background: #fff; 
+  border: 2px solid #e5e7eb; 
+  border-radius: 8px; 
+  padding: 0.75rem; 
+  transition: all 0.2s;
+}
+.character-card.current-turn { 
+  border-color: #2563eb; 
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.char-header { margin-bottom: 0.5rem; }
+.char-header h3 { margin: 0; font-size: 1rem; }
+.char-header .small { color: #6b7280; font-size: 0.85rem; }
+
+/* HP Bar */
+.hp-bar { margin: 0.5rem 0; }
+.hp-label { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+.hp-bar-bg { 
+  background: #e5e7eb; 
+  border-radius: 4px; 
+  height: 8px; 
+  overflow: hidden;
+}
+.hp-bar-fill { 
+  background: linear-gradient(to right, #dc2626, #f59e0b, #10b981); 
+  height: 100%; 
+  transition: width 0.3s;
+}
+
+.char-actions { 
+  display: flex; 
+  gap: 0.5rem; 
+  margin-top: 0.5rem; 
+}
+.small-btn { 
+  font-size: 0.85rem; 
+  padding: 0.375rem 0.5rem;
+  flex: 1;
+}
+
+/* Battle Controls */
+.battle-controls { 
+  display: flex; 
+  gap: 0.5rem; 
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+.battle-controls button { flex: 1; }
+
+/* Turn Indicator */
+.turn-indicator { 
+  padding: 0.75rem; 
+  background: #eff6ff; 
+  border: 2px solid #2563eb; 
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Ability Panel */
+.ability-panel { 
+  padding: 1rem; 
+  background: #fff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px;
+}
+.ability-panel h3 { margin-top: 0; }
+#abilitiesList { display: grid; gap: 0.75rem; }
+.ability-card { 
+  padding: 0.75rem; 
+  background: #f9fafb; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 6px;
+}
+.ability-card h4 { margin: 0 0 0.5rem 0; font-size: 0.95rem; }
+.ability-card p { margin: 0 0 0.5rem 0; color: #6b7280; }
+.ability-stats { 
+  display: flex; 
+  gap: 1rem; 
+  margin-bottom: 0.5rem;
+  color: #6b7280;
+}
+.use-ability-btn { width: 100%; }
+
+/* GM Messages Panel */
+.gm-messages-panel { 
+  padding: 1rem; 
+  background: #fff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px;
+}
+.gm-messages-panel h3 { margin-top: 0; }
+.messages-list { 
+  max-height: 200px; 
+  overflow-y: auto;
+  display: grid;
+  gap: 0.5rem;
+}
+.gm-message { 
+  padding: 0.5rem; 
+  background: #fef3c7; 
+  border-left: 3px solid #f59e0b; 
+  border-radius: 4px;
+}
+.gm-message .small { margin-bottom: 0.25rem; }
+
+/* Enemy System */
+.enemy-attacks { margin-top: 1rem; }
+.enemy-attacks h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+#attacksList { display: grid; gap: 0.5rem; margin-bottom: 0.5rem; }
+.attack-field { 
+  padding: 0.75rem; 
+  background: #f9fafb; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 6px;
+}
+.attack-field-grid { 
+  display: grid; 
+  grid-template-columns: 2fr 1fr 1fr auto; 
+  gap: 0.5rem; 
+  align-items: center;
+}
+.attack-field-grid input { 
+  padding: 0.375rem 0.5rem; 
+  font-size: 0.9rem;
+}
+.remove-attack-btn { 
+  width: 32px; 
+  height: 32px; 
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Enemies in Battle */
+.enemy-combat-panel { 
+  padding: 1rem; 
+  background: #fff; 
+  border: 1px solid #e5e7eb; 
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.enemy-combat-panel h2 { margin-top: 0; font-size: 1.1rem; }
+.enemies-grid { display: grid; gap: 0.75rem; margin-bottom: 0.75rem; }
+.enemy-card { 
+  background: #fff; 
+  border: 2px solid #e5e7eb; 
+  border-radius: 8px; 
+  padding: 0.75rem; 
+  transition: all 0.2s;
+}
+.enemy-card.gm-turn { 
+  border-color: #dc2626; 
+  background: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+.enemy-card.dead { 
+  opacity: 0.6;
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+.enemy-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.enemy-header h4 { margin: 0; font-size: 1rem; }
+.dead-badge { 
+  background: #6b7280; 
+  color: white; 
+  padding: 0.125rem 0.5rem; 
+  border-radius: 4px; 
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.enemy-actions { 
+  display: flex; 
+  gap: 0.5rem; 
+  margin-top: 0.5rem;
+}
+
+/* Enemy Attack Panel */
+.enemy-attack-panel { 
+  padding: 1rem; 
+  background: #fff; 
+  border: 2px solid #dc2626; 
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.enemy-attack-panel h3 { margin-top: 0; color: #dc2626; }
+.hp-display { 
+  font-weight: 600; 
+  margin-bottom: 0.75rem;
+  color: #6b7280;
+}
+#enemyAttacksList { display: grid; gap: 0.75rem; margin-bottom: 0.75rem; }
+.enemy-attack-card { 
+  padding: 0.75rem; 
+  background: #fef2f2; 
+  border: 1px solid #fecaca; 
+  border-radius: 6px;
+}
+.enemy-attack-card h4 { margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #dc2626; }
+.attack-stats { 
+  display: flex; 
+  gap: 1rem; 
+  margin-bottom: 0.5rem;
+  color: #6b7280;
+}
+.target-selection { 
+  display: flex; 
+  gap: 0.5rem; 
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.target-select { 
+  flex: 1; 
+  padding: 0.375rem 0.5rem;
+  font-size: 0.9rem;
+}
+.use-enemy-attack-btn { 
+  width: 100%; 
+  background: #dc2626;
+}
+.use-enemy-attack-btn:hover:not(:disabled) { 
+  background: #b91c1c;
+}
+
+/* Dice 3D Canvas */
+.dice-canvas {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.dice-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.dice-result-display {
+  text-align: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  margin-top: 0.75rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #1f2937;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dice-result-display.rolling {
+  color: #2563eb;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.dice-controls { display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 0.5rem; align-items: center; }
+.log-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.log-header h2 { margin: 0; }
+.log ul, #logList { list-style: none; padding-left: 0; margin: 0; }
+#logList li { padding: 0.25rem 0; border-bottom: 1px dashed #e5e7eb; font-size: 0.95rem; }
+
+.characters { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-row { display: grid; gap: 0.25rem; margin-bottom: 0.75rem; }
+.form-row input, select, textarea { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; }
+.attributes { margin-top: 0.5rem; }
+.attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.attr-grid label { display: grid; gap: 0.25rem; font-weight: 600; }
+.points { margin-top: 0.5rem; font-weight: 600; }
+.form-actions { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
+.list { list-style: none; padding-left: 0; display: grid; gap: 0.25rem; }
+.list li { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 6px; }
+.list .small { font-size: 0.85rem; color: #6b7280; }
+.details { margin-top: 0.75rem; border-top: 1px solid #e5e7eb; padding-top: 0.75rem; }
+.list-actions { margin-top: 0.5rem; }
+
+button { border: none; background: #2563eb; color: #fff; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+button:hover:not(:disabled) { background: #1d4ed8; }
+button.secondary { background: #6b7280; }
+button.secondary:hover:not(:disabled) { background: #4b5563; }
+button.danger { background: #dc2626; }
+button.danger:hover:not(:disabled) { background: #b91c1c; }
+button.primary { background: #059669; }
+button.primary:hover:not(:disabled) { background: #047857; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.small { font-size: 0.85rem; }
+.small.muted { color: #9ca3af; }
+
+.gm { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+/* Modo Player: esconder elementos GM */
+body[data-mode="player"] .gm-only { display: none !important; }
+
+/* Preview de habilidades na criação de personagem */
+.class-abilities-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.class-abilities-preview h4 {
+  margin: 0 0 0.75rem 0;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.abilities-list-preview {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ability-preview-item {
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.ability-preview-item strong {
+  display: block;
+  color: #2563eb;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.ability-preview-item p {
+  margin: 0.25rem 0;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.ability-preview-item .small {
+  font-size: 0.85rem;
+}
+
+.ability-preview-item .muted {
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+/* Story Display */
+.story-container {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.story-container h3 {
+  margin: 0 0 0.5rem 0;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+.story-container h4 {
+  margin: 1rem 0 0.5rem 0;
+  color: #374151;
+  font-size: 1rem;
+}
+
+.story-container details {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-left: 3px solid #2563eb;
+  border-radius: 4px;
+}
+
+.story-container details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1f2937;
+  user-select: none;
+  margin-bottom: 0.5rem;
+}
+
+.story-container details summary:hover {
+  color: #2563eb;
+}
+
+.story-container details[open] summary {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.story-choice {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.story-choice strong {
+  color: #2563eb;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.story-container ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.story-container li {
+  margin: 0.5rem 0;
+}
+
+/* Responsivo */
+@media (max-width: 980px) {
+  .mesa { grid-template-columns: 1fr; }
+  .scenario-panel { grid-template-columns: 1fr; }
+  .characters, .gm { grid-template-columns: 1fr; }
+  .sidebar { order: 2; }
+}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RPG de Mesa Offline</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>RPG de Mesa Offline</h1>
+    <div class="mode-switch">
+      <label for="modeSelect">Modo:</label>
+      <select id="modeSelect" aria-label="Selecionar modo">
+        <option value="gm">GM (Mestre)</option>
+        <option value="player">Jogador</option>
+      </select>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="mesa" role="tab" aria-selected="true">Mesa</button>
+    <button class="tab-btn" data-tab="personagens" role="tab" aria-selected="false">Personagens</button>
+    <button class="tab-btn gm-only" data-tab="mestre" role="tab" aria-selected="false">Mestre</button>
+  </nav>
+
+  <main>
+    <!-- Mesa -->
+    <section id="tab-mesa" class="tab-panel active" role="tabpanel">
+      <div class="mesa">
+        <div class="character-panel">
+          <h2>Personagens em Jogo</h2>
+          <div id="charactersList" class="characters-grid"></div>
+          <div class="battle-controls">
+            <button id="startBattleBtn" class="primary">Iniciar Combate</button>
+            <button id="endBattleBtn" class="secondary" style="display:none;">Encerrar Combate</button>
+          </div>
+          <div id="turnIndicator" class="turn-indicator" style="display:none;">
+            <strong>Turno:</strong> <span id="currentTurnPlayer">-</span>
+            <button id="nextTurnBtn" class="secondary">Próximo Turno</button>
+          </div>
+          <div id="abilityPanel" class="ability-panel" style="display:none;">
+            <h3>Habilidades de <span id="selectedCharName">-</span></h3>
+            <div id="abilitiesList"></div>
+          </div>
+        </div>
+        <div class="scenario-panel">
+          <div class="scenario">
+            <img id="scenarioImage" src="assets/placeholder.png" alt="Cenário atual" />
+            <div class="gm-only cover-selector">
+              <label for="coverSelect">Escolher capa:</label>
+              <select id="coverSelect"></select>
+              <button id="setCoverBtn" class="primary">Definir como Capa</button>
+            </div>
+          </div>
+          <aside class="sidebar">
+            <div class="gm-only enemy-combat-panel">
+              <h2>Inimigos (GM)</h2>
+              <div id="enemiesInBattle" class="enemies-grid"></div>
+              <div id="enemyAttackPanel" class="enemy-attack-panel" style="display:none;">
+                <h3>Ataques de <span id="selectedEnemyName">-</span></h3>
+                <div class="hp-display">HP: <span id="selectedEnemyHP">-</span></div>
+                <div id="enemyAttacksList"></div>
+                <button id="closeEnemyPanelBtn" class="secondary small-btn">Fechar</button>
+              </div>
+            </div>
+            <div class="dice">
+              <h2>Rolagem de Dados</h2>
+              <div id="diceCanvas" class="dice-canvas"></div>
+              <div class="dice-controls">
+                <label for="diceType">Dado:</label>
+                <select id="diceType">
+                  <option value="4">d4</option>
+                  <option value="6" selected>d6</option>
+                  <option value="8">d8</option>
+                  <option value="10">d10</option>
+                  <option value="12">d12</option>
+                  <option value="20">d20</option>
+                  <option value="100">d100</option>
+                </select>
+                <label for="diceTimes">Qtd:</label>
+                <input id="diceTimes" type="number" min="1" max="20" value="1" />
+                <button id="rollBtn">Rolar</button>
+              </div>
+              <div id="diceResult" class="dice-result-display"></div>
+            </div>
+            <div class="log">
+              <div class="log-header">
+                <h2>Registro</h2>
+                <button id="clearLogBtn" class="secondary small-btn">Limpar</button>
+              </div>
+              <ul id="logList" aria-live="polite"></ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Personagens -->
+    <section id="tab-personagens" class="tab-panel" role="tabpanel">
+      <div class="characters">
+        <form id="charForm" class="card" autocomplete="off">
+          <h2>Criar Personagem</h2>
+          <div class="form-row">
+            <label for="charName">Nome</label>
+            <input id="charName" type="text" required maxlength="32" />
+          </div>
+          <div class="form-row">
+            <label for="charClass">Classe</label>
+            <select id="charClass"></select>
+          </div>
+          <div class="attributes">
+            <h3>Atributos (40 pontos)</h3>
+            <div class="attr-grid">
+              <label>Agilidade<input type="number" min="0" max="50" value="0" data-attr="Agilidade" /></label>
+              <label>Saúde<input type="number" min="0" max="50" value="0" data-attr="Saúde" /></label>
+              <label>Força<input type="number" min="0" max="50" value="0" data-attr="Força" /></label>
+              <label>Inteligência<input type="number" min="0" max="50" value="0" data-attr="Inteligência" /></label>
+              <label>Magia<input type="number" min="0" max="50" value="0" data-attr="Magia" /></label>
+              <label>Sorte<input type="number" min="0" max="50" value="0" data-attr="Sorte" /></label>
+            </div>
+            <div class="points">Restantes: <span id="pointsLeft">40</span></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Salvar Personagem</button>
+            <button type="button" id="resetAttrsBtn" class="secondary">Zerar atributos</button>
+          </div>
+        </form>
+
+        <div class="card">
+          <h2>Personagens Salvos</h2>
+          <ul id="charList" class="list"></ul>
+          <div class="list-actions">
+            <button id="deleteCharBtn" class="danger" disabled>Excluir Selecionado</button>
+          </div>
+          <div id="charDetails" class="details"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mestre (GM) -->
+    <section id="tab-mestre" class="tab-panel" role="tabpanel">
+      <div class="gm">
+        <div class="card">
+          <h2>Criar Inimigo</h2>
+          <form id="enemyForm" autocomplete="off">
+            <div class="form-row">
+              <label for="enemyName">Nome do Monstro</label>
+              <input id="enemyName" type="text" required maxlength="32" />
+            </div>
+            <div class="form-row">
+              <label for="enemyHP">Vida Inicial (HP)</label>
+              <input id="enemyHP" type="number" min="1" max="500" value="50" required />
+            </div>
+            <div class="enemy-attacks">
+              <h3>Ataques</h3>
+              <div id="attacksList"></div>
+              <button type="button" id="addAttackBtn" class="secondary">+ Adicionar Ataque</button>
+            </div>
+            <div class="form-actions">
+              <button type="submit">Salvar Inimigo</button>
+              <button type="button" id="resetEnemyFormBtn" class="secondary">Limpar</button>
+            </div>
+          </form>
+          
+          <div style="margin-top: 1.5rem;">
+            <h3>Inimigos Salvos</h3>
+            <ul id="enemiesList" class="list"></ul>
+            <button id="deleteEnemyBtn" class="danger" disabled>Excluir Selecionado</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📖 História da Campanha</h2>
+          <div id="storyDisplay">
+            <p class="muted">Carregando história...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

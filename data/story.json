@@ -1,0 +1,127 @@
+{
+  "title": "O Tesouro do Templo de Eldoria",
+  "version": "1.1",
+  "summary": "Aventura curta e imersiva para 2 jogadores; trilha de exploração, armadilha no altar e fuga com confronto final contra orcs.",
+  "players_template": [
+    {
+      "name": "{player1}",
+      "hp": 10,
+      "max_hp": 10,
+      "stats": { "forca": 2, "agilidade": 2, "inteligencia": 1, "sorte": 1 },
+      "inventory": []
+    },
+    {
+      "name": "{player2}",
+      "hp": 10,
+      "max_hp": 10,
+      "stats": { "forca": 1, "agilidade": 3, "inteligencia": 1, "sorte": 1 },
+      "inventory": []
+    }
+  ],
+  "parts": [
+    {
+      "id": 1,
+      "title": "A Jornada até o Tesouro",
+      "description": "Vocês avançam pela trilha da floresta sombria de Eldoria. O vento carrega cheiro de musgo e antigas lendas — falam de um templo que guarda um artefato brilhante. Conforme se aproximam, o caminho se bifurca em três rotas, cada uma com seus perigos e possibilidades: a Trilha da Floresta, a Passagem do Rio e a Caverna Secreta. Escolham com cuidado; a escolha mudará os encontros e a narrativa.",
+      "choices": [
+        {
+          "id": "floresta",
+          "name": "Trilha da Floresta",
+          "description": "A trilha mergulha sob copas cerradas. Raízes entrelaçadas e pedras cobertas de musgo podem trair qualquer passo apressado.",
+          "test": {
+            "stat": "agilidade",
+            "dice": "d20",
+            "target": 10,
+            "target_text": "(d20 10+ com Agilidade)"
+          },
+          "success_narrative": "Vocês se movem com passos cuidadosos: desviam de galhos, saltam sobre raízes e sentem a brisa fresca nas costas — seguem sem ferimentos e com a sensação de terem escutado algo nas sombras.",
+          "failure_narrative": "Um galho traiçoeiro prende seu pé e você perde o equilíbrio; o corpo sofre um arranhão e sente o impacto. Perde 1-2 HP enquanto ouve um estalo distante que pode ter alertado algo nas redondezas."
+        },
+        {
+          "id": "rio",
+          "name": "Passagem do Rio",
+          "description": "O caminho desce até uma correnteza rápida. As pedras são escorregadias; atravessar exige força e ritmo coordenado.",
+          "test": {
+            "stat": "forca",
+            "dice": "d20",
+            "target": 11,
+            "target_text": "(d20 11+ com Força)"
+          },
+          "success_narrative": "Com esforço e precisão, vocês vencem a corrente. A água salpica, mas o equipamento permanece seguro e vocês continuam com as mãos firmes no leme do destino.",
+          "failure_narrative": "A corrente leva uma mochila valiosa por um instante; nas pedras cortantes você se fere ao recuperar parte do material. Perde 1-2 HP e talvez parte do suprimento."
+        },
+        {
+          "id": "caverna",
+          "name": "Caverna Secreta",
+          "description": "Uma abertura estreita se abre entre rochas. O ar é frio e ecoa passos distantes; pequenos animais e armadilhas naturais podem surpreender quem não estiver atento.",
+          "test": {
+            "stat": "sorte",
+            "dice": "d20",
+            "target": 9,
+            "target_text": "(d20 9+ com Sorte)"
+          },
+          "success_narrative": "A penumbra lhes favorece. Um morcego passa, pedaços soltos não caem — vocês progridem cuidadosos e ganham vantagem para evitar emboscadas posteriores.",
+          "failure_narrative": "Algo se move na sombra e um pequeno confronto ocorre: arranhões e susto. Perde 1-2 HP, e o ruído pode atrair criaturas menores."
+        }
+      ],
+      "gm_notes": "Use {player1} e {player2} no texto quando quiser que os nomes reais dos jogadores apareçam; substitua essas chaves antes de mostrar a narrativa. Para dano '1-2' role 1d2. Se ambos falharem, combine consequências narrativas e adapte recursos."
+    },
+    {
+      "id": 2,
+      "title": "O Tesouro e a Armadilha",
+      "description": "No coração do templo antigo, a pedra do altar parece pulsar com uma luz azul-esverdeada. Runas gastas sussurram história de guardiões e acordos antigos. Um baú entalhado repousa sobre um pedestal — toque errado pode libertar algo perigoso.",
+      "test": {
+        "options": [
+          { "stat": "destreza", "dice": "d20", "target": 12, "text": "(d20 12+ com Destreza)" },
+          { "stat": "inteligencia", "dice": "d20", "target": 12, "text": "(d20 12+ com Inteligência)" }
+        ]
+      },
+      "success": {
+        "effect": "Obtém o tesouro intacto (ouro e joias).",
+        "narrative": "Com mãos firmes e atenção, vocês desarmam o mecanismo satisfeito com um clique silencioso. O interior do baú revela moedas, um medalhão e um pequeno globo que pulsa com luz calma — o tesouro intacto brilha sob suas tochas."
+      },
+      "failure": {
+        "effect": "Ativa armadilhas: leva 2 pontos de dano e ainda assim consegue pegar parte do tesouro.",
+        "narrative": "Ao tocar o fecho, um estalo ecoa e dardos de pedra disparam do pedestal. A dor é aguda, mas rápida — vocês sofrem ferimentos leves (2 HP) e, entre o pó e a surpresa, conseguem arrancar parte do tesouro antes de se recompor."
+      },
+      "gm_notes": "Se ambos falharem, aplique dano a ambos e considere uma segunda consequência (alarme disparado). Permita testes assistidos: um jogador pode ajudar com vantagem reduzindo a dificuldade em 2 pontos (ou permitir rolar duas vezes e escolher melhor)."
+    },
+    {
+      "id": 3,
+      "title": "Fuga e Confronto com os Orcs",
+      "description": "Assim que o tesouro é tocado, um som de tambores distantes surge — patrulhas orcs são atraídas pelo alarme natural do templo. Lâmpadas tremeluzem, e corredores que antes pareciam vazios se enchem de passos pesados. É hora de fugir ou enfrentar.",
+      "combat_setup": {
+        "enemies": [
+          { "type": "Orc", "count": 3, "hp": 6, "attack": { "dice": "d20", "atk_mod": 1, "hit_target": 10, "damage": "1d4+1" } }
+        ],
+        "objective": "Sobreviver e sair do templo com o tesouro"
+      },
+      "actions": {
+        "Atacar": {
+          "description": "Ataque corpo a corpo. Role d20 + modificador de força; acerto em >=10.",
+          "resolve": "Se acertar, causa 1d6 + mod_forca de dano.",
+          "example": "(d20 + mod_força >= 10) → dano 1d6 + mod_força"
+        },
+        "Defender": {
+          "description": "Assume postura defensiva; reduz dano recebido no próximo turno em 50% (arredondar para baixo) ou +4 na resistência a ataque.",
+          "resolve": "Marca 'defendendo' e aplique redução no próximo ataque recebido."
+        },
+        "HabilidadeEspecial": {
+          "description": "Usa uma habilidade única (ex: bola de fogo, ataque pelas costas, bênção). Efeito depende da habilidade escolhida; pode usar teste (d20) para sucesso.",
+          "resolve_example": "Bola de fogo: teste de inteligência (d20 12+) para causar 2d6 de área; falha causa 1d4 de recuo."
+        }
+      },
+      "enemy_ai": "Orcs atacam o jogador mais próximo ou o que tiver menor HP. Cada orc rola d20 + atk_mod; acerto em >= hit_target causa damage.",
+      "turns": "Jogador1 → Jogador2 → Orcs. O GM controla rolagens dos inimigos e aplica dano automaticamente.",
+      "death_condition": "Se HP <= 0, personagem cai e falha na aventura.",
+      "gm_tips": "Se a fuga for preferida, permita um teste conjunto de Agilidade (d20) para abrir vantagem; o GM pode reduzir número de orcs se os jogadores estiverem exaustos."
+    }
+  ],
+  "mechanics": {
+    "dice_notation": "d20 para testes de sucesso; dX para dano (ex: 1d6, 1d4).",
+    "success_definition": "Se o resultado do d20 + modificador relevante >= target, é sucesso.",
+    "damage_ranges": "Para '1-2' role 1d2 (ou role 1d6 e converta 1-2 => 1, 3-4 => 2, etc).",
+    "modifiers": "Modificador approximado = floor((stat - 1)/2) ou use o valor bruto 'stats' como modificador direto conforme preferir."
+  },
+  "gm_notes": "Este arquivo é um template: substitua {player1} e {player2} pelos nomes reais dos jogadores antes de apresentar a narrativa, ou deixe como está para que o GM personalize no momento. Ajuste thresholds conforme necessário (10+, 11+, 12+)."
+}
